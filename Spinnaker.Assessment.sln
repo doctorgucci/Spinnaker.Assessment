@@ -32,6 +32,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spinnaker.Assessment.UI", "Spinnaker.Assessment.UI\Spinnaker.Assessment.UI.csproj", "{B2FEC62C-775A-48B6-8A1C-91B5F2F793F6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{CD52DB67-FAD7-42EE-8FCC-2FA247C8D6D2}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Documents\SQL Server Management Studio\DAC Packages\JovanAssessment.bacpac = ..\..\..\Documents\SQL Server Management Studio\DAC Packages\JovanAssessment.bacpac
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2F0DB592-3018-499D-BCD0-F0EDE613355C}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
