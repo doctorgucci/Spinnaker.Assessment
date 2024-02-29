@@ -1,0 +1,299 @@
+﻿@page
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<h1>Create Customer</h1>
+
+<div class="container">
+    <form method="post">
+        <div class="form-group row">
+            <label asp-for="Name" class="col-sm-2 col-form-label">Name:</label>
+            <div class="col-sm-4">
+                <input asp-for="Name" class="form-control form-control-sm" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="Surname" class="col-sm-2 col-form-label">Surname:</label>
+            <div class="col-sm-4">
+                <input asp-for="Surname" class="form-control form-control-sm" />
+                <span asp-validation-for="Surname" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="IdentityNumber" class="col-sm-2 col-form-label">ID Number:</label>
+            <div class="col-sm-4">
+                <input asp-for="IdentityNumber" class="form-control form-control-sm" />
+                <span asp-validation-for="IdentityNumber" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="Email" class="col-sm-2 col-form-label">Email Address:</label>
+            <div class="col-sm-4">
+                <input asp-for="Email" class="form-control form-control-sm" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="PhoneNumber" class="col-sm-2 col-form-label">Phone Number:</label>
+            <div class="col-sm-4">
+                <input asp-for="PhoneNumber" class="form-control form-control-sm" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="CountryId" class="col-sm-2 col-form-label">Country:</label>
+            <div class="col-sm-4">
+                <select asp-for="CountryId" class="form-control form-control-sm" asp-items="Model.Countries"></select>
+                <span asp-validation-for="CountryId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-10">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </form>
+</div>
+<div>   
+    @if (Model.Customers != null)
+    {
+        @await Html.PartialAsync("_PartialView", Model.Customers)
+    }
+    else
+    {
+        <p>No customers available.</p>
+    }  
+</div>
+@section Scripts
+{
+    <script>
+      
+
+        $(document).ready(function () {
+
+            var baseUrl = '@Configuration["ApiSettings:BaseUrl"]';
+
+            console.log(baseUrl);
+
+            $('#exportButton').click(function () {
+                exportToXML();
+            });
+
+            function convertTableToXML() {
+                const table = document.querySelector('.mvc-grid-table table');
+                if (!table) {
+                    console.error('Table element not found');
+                    return;
+                }
+
+                let xmlString = '<?xml version="1.0" encoding="UTF-8"?>\n<data>\n';
+
+                const tbody = table.querySelector('tbody');
+                if (!tbody) {
+                    console.error('Table body element not found');
+                    return;
+                }
+
+                const rows = tbody.querySelectorAll('tr');
+                if (!rows || rows.length === 0) {
+                    console.error('No rows found in the table');
+                    return;
+                }
+
+                rows.forEach(row => {
+                    xmlString += '\t<row>\n';
+
+                    const cells = row.querySelectorAll('td:not(:nth-child(9)):not(:nth-child(10))');//const cells = row.querySelectorAll('td');
+                    if (!cells || cells.length === 0) {
+                        console.error('No cells found in the row');
+                        return;
+                    }
+
+                    cells.forEach((cell, index) => {
+                        const columnName = getColumnName(index);
+                        const cellData = cell.textContent.trim();
+                        if (cellData !== '') {
+                            xmlString += `\t\t<${columnName}>${cellData}</${columnName}>\n`;
+                        }
+                    });
+
+                    xmlString += '\t</row>\n';
+                });
+
+                xmlString += '</data>';
+
+                console.log(xmlString);
+
+                downloadXML('customerData.xml', xmlString);
+            }
+
+            function getColumnName(index) {
+                const columnNames = ['Checkbox', 'Number', 'Name', 'Surname', 'IdentityNumber', 'Email', 'PhoneNumber', 'Country'];
+                return columnNames[index] || `Column${index + 1}`;
+            }
+
+            function downloadXML(filename, xmlString) {
+                const blob = new Blob([xmlString], { type: 'text/xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+
+            function exportToXML() {
+                const xmlData = convertTableToXML();
+            }
+
+
+            $('.deleteButton').click(function () {                              
+                var id = $(this).data('id');
+                $('#deleteModal').data('id', id);
+                $('#deleteModal').modal('show');
+            });
+
+            $('#deleteModal').find('.btn-danger').click(function () {                
+                var id = $('#deleteModal').data('id');           
+                $.ajax({
+                    url: baseUrl + 'Customer/'+ id,
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Content-Type': 'application/json'
+                    },                   
+                    crossdomain: true,
+                    type: 'DELETE',                   
+                    success: function (result) {
+
+                        $('#row_' + id).remove();
+                        $('#deleteModal').modal('hide');
+                        alert('Item deleted successfully.');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                        alert('Error deleting item. Please try again.');
+                    }
+                });                
+                $('#deleteModal').modal('hide');
+            });
+
+        });
+        $(document).ready(function () {
+            var baseUrl = '@Configuration["ApiSettings:BaseUrl"]';
+
+            function fetchData(id) {
+                $.ajax({
+                    url: baseUrl  + 'customer/' + id,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                       
+                        $('input[name="id"]').val(response.id);                       
+                        $('#name').val(response.name);
+                        $('#surname').val(response.surname);
+                        $('#identityNumber').val(response.identityNumber);
+                        $('#email').val(response.email);
+                        $('#phoneNumber').val(response.phoneNumber);
+                        $('#countryId').val(response.country.id);
+                     
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching data:', error);
+                    }
+                });
+            }
+
+            function fetchCountries() {             
+                return $.ajax({
+                    url: baseUrl + 'country',
+                    method: 'GET',
+                    success: function (countries) {
+                        var countrySelect = $('#countryId');                         
+                        countries.forEach(function (country) {
+                            countrySelect.append($('<option>', {
+                                value: country.id,
+                                text: country.friendlyName
+                            }));
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching countries:', error);
+                    }
+                });
+            }
+                     
+            $('.editCustomer').click(function () {
+                var id = $(this).data('id');
+                fetchCountries();
+                fetchData(id); 
+                $('#editModal').modal('show'); 
+            });
+ 
+
+            $('#saveChangesBtn').click(function () {
+
+                var id = $("[name='id']").val();
+                var formData = {
+                    id: id,
+                    name: $("#name").val(),
+                    surname: $("#surname").val(),
+                    identityNumber: $("#identityNumber").val(),
+                    email: $("#email").val(),
+                    phoneNumber: $("#phoneNumber").val(),
+                    countryId: $("#countryId").val()
+                };
+                
+                var jsonData = JSON.stringify(formData);
+
+                $.ajax({
+                    url: baseUrl + 'Customer/' + id,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: jsonData,
+                    success: function (response) {                      
+                        $('#editModal').modal('hide');
+                        window.location.reload();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error updating data:', error);
+                    }
+                });
+            });
+
+           
+
+            $(document).on('click', '.btn-danger', function () {             
+                var itemId = $(this).data('id');
+                $('#deleteModal').data('id', itemId).modal('show');
+            });
+
+            $('#confirmDeleteBtn').click(function () {
+                var itemId = $('#deleteModal').data('id');
+
+                $.ajax({
+                    url: baseUrl + '/Customer',
+                    type: 'POST',
+                    data: { customerId: itemId },
+                    success: function (result) {
+
+                        $('#row_' + itemId).remove();
+                        $('#deleteModal').modal('hide');
+                        alert('Item deleted successfully.');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                        alert('Error deleting item. Please try again.');
+                    }
+                });
+            });
+    
+        });
+    </script>
+}

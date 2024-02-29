@@ -1,0 +1,6 @@
+@Spinnaker.Asessment.WebAPI_HostAddress = http://localhost:44376
+
+GET {{Spinnaker.Asessment.WebAPI_HostAddress}}/customer/
+Accept: application/json
+
+###

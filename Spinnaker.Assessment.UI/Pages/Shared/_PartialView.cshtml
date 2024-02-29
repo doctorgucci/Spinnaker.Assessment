@@ -1,0 +1,100 @@
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@model IQueryable<Spinnaker.Assessment.UI.Models.Customers>
+
+<br/>
+<h1>Existing Customers</h1>
+@(Html
+    .Grid(Model)
+    .Build(columns =>
+    {
+        columns.Add(model => Html.CheckBox(model.Id)).Titled(Html.CheckBox("CheckAll"));
+        columns.Add().RenderedAs((model, row) => row + 1).Titled("#").Css("text-center");
+       
+        columns.Add(model => model.Name).Titled("Name");
+        columns.Add(model => model.Surname).Titled("Surname");
+        columns.Add(model => model.IdentityNumber).Titled("Identity Number");
+        columns.Add(model => model.Email).Titled("Email");
+        columns.Add(model => model.PhoneNumber).Titled("Phone Number");
+        columns.Add(model => model.Country.FriendlyName).Titled("Country");
+
+        columns.Add(model => $"<button class='editCustomer btn btn-info' data-id=\"{model.Id}\">Edit</button>").Encoded(false);
+        columns.Add(model => $"<button class='deleteButton btn btn-danger' data-id=\"{model.Id}\">Delete</button>").Encoded(false);
+
+    })
+    .Empty("No data found")
+    .Filterable() )
+
+<br/>
+<button id="exportButton" class="btn btn-success">Export to XML</button>
+
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Information</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">               
+                <form id="editForm">
+                    <input type="hidden" name="id">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" placeholder="Enter name">
+                    </div>
+                    <div class="form-group">
+                        <label for="surname">Surname</label>
+                        <input type="text" class="form-control" id="surname" placeholder="Enter surname">
+                    </div>
+                    <div class="form-group">
+                        <label for="identityNumber">Identity Number</label>
+                        <input type="text" class="form-control" id="identityNumber" placeholder="Enter identity number">
+                    </div>
+                        <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="text" class="form-control" id="email" placeholder="Enter email address">
+                    </div>
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number</label>
+                        <input type="text" class="form-control" id="phoneNumber" placeholder="Enter Phone Number">
+                    </div>
+                    <div class="form-group">
+                        <label for="countryId">Country</label>
+                        <select class="form-control" id="countryId" name="countryId">
+                            <option value="">Select Country</option>                           
+                        </select>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this item?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger confirm-delete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
