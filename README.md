@@ -47,15 +47,14 @@ To use this project:
 
 1. Run the application. Both the API and ASP.NET Core applications will launch. I recommend using IIS Express but you are more than welcome to use whatever you prefer.
 2. Ensure that the connection string in appsettings.json (Transport> Spinnaker.Assessment.WebAPI) matches your SQL Server instance. This the Entity Framework connection string.
-    "ConnectionStrings": {
-    "DatabaseConnection": "Data Source=localhost; Initial Catalog=JovanAssessment;Integrated Security=true;TrustServerCertificate=True"
-  } 
+    ```json "ConnectionStrings": {
+    "DatabaseConnection": "Data Source=localhost; Initial Catalog=JovanAssessment;Integrated Security=true;TrustServerCertificate=True" } 
   If your data source is not localhost - please change it to the correct name as per your machine/setup.
 
 3. Make sure that the URL for the API is the same as the ApiSettings.BaseUrl in the ASP.NET Core appSettings file. (Spinnaker.Assessment.UI)
+   ```json
    "ApiSettings": {
-    "BaseUrl": "https://localhost:44376/api/"
-  }
+    "BaseUrl": "https://localhost:44376/api/"} 
   If the launch url for the API which contains swagger endpoints is different - please replace the /localhost:port/ section.
 
 
